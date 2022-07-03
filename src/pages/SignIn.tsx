@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import {RootStackParamList} from '../../App';
+import DismissKeyboardView from '../components/DismissKeyboardView';
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
@@ -19,10 +20,10 @@ function SignIn({navigation}: SignInScreenProps) {
   const passwordRef = useRef<TextInput | null>(null);
 
   const onChangeEmail = useCallback(text => {
-    setEmail(text);
+    setEmail(text.trim());
   }, []);
   const onChangePassword = useCallback(text => {
-    setPassword(text);
+    setPassword(text.trim());
   }, []);
 
   const onSubmit = useCallback(() => {
@@ -33,7 +34,7 @@ function SignIn({navigation}: SignInScreenProps) {
       return Alert.alert('알림', '비밀번호를 입력해주세요.');
     }
     Alert.alert('알림', '로그인 되었습니다.');
-  }, []);
+  }, [email, password]);
 
   const toSignUp = useCallback(() => {
     navigation.navigate('SignUp');
@@ -42,7 +43,7 @@ function SignIn({navigation}: SignInScreenProps) {
   const canGoNext = email && password;
 
   return (
-    <View>
+    <DismissKeyboardView>
       <View style={styles.inputWrapper}>
         <Text style={styles.label}>이메일</Text>
         <TextInput
@@ -89,11 +90,11 @@ function SignIn({navigation}: SignInScreenProps) {
           disabled={!canGoNext}>
           <Text style={styles.loginButtonText}>로그인</Text>
         </Pressable>
-        <Pressable>
+        <Pressable onPress={toSignUp}>
           <Text>회원가입하기</Text>
         </Pressable>
       </View>
-    </View>
+    </DismissKeyboardView>
   );
 }
 
