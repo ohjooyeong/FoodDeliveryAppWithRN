@@ -1,4 +1,4 @@
-package com.fooddeliveryapp;
+package com.ohzz.fooddeliveryapp;
 
 import com.facebook.react.ReactActivity;
 import android.os.Bundle;
