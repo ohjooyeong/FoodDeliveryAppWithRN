@@ -1,4 +1,4 @@
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 // action: state를 바꾸는 행위/동작
 // dispatch: 그 액션을 실제로 실행하는 함수
@@ -8,7 +8,7 @@ const initialState = {
   name: '',
   email: '',
   accessToken: '',
-  refreshToken: '',
+  money: 0,
 };
 const userSlice = createSlice({
   name: 'user',
@@ -18,6 +18,15 @@ const userSlice = createSlice({
       state.email = action.payload.email;
       state.name = action.payload.name;
       state.accessToken = action.payload.accessToken;
+    },
+    setName(state, action) {
+      state.name = action.payload;
+    },
+    setEmail(state, action) {
+      state.email = action.payload;
+    },
+    setMoney(state, action: PayloadAction<number>) {
+      state.money = action.payload;
     },
   },
   extraReducers: builder => {},

@@ -2,6 +2,7 @@ import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import EncryptedStorage from 'react-native-encrypted-storage';
 import {useSelector} from 'react-redux';
 import {RootState} from './src/store/reducer';
 
@@ -11,6 +12,13 @@ import Delivery from './src/pages/Delivery';
 import SignIn from './src/pages/SignIn';
 import SignUp from './src/pages/SignUp';
 import useSocket from './src/hooks/useSocket';
+import {useAppDispatch} from './src/store';
+import axios, {AxiosError, AxiosResponse} from 'axios';
+import {Alert} from 'react-native';
+import Config from 'react-native-config';
+import userSlice from './src/slices/user';
+import orderSlice from './src/slices/order';
+// import orderSlice from './src/slices/order';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -29,6 +37,7 @@ const Stack = createNativeStackNavigator();
 
 function AppInner() {
   const isLoggedIn = useSelector((state: RootState) => !!state.user.email);
+  const dispatch = useAppDispatch();
 
   const [socket, disconnect] = useSocket();
 
@@ -50,10 +59,65 @@ function AppInner() {
   }, [isLoggedIn, socket]);
 
   useEffect(() => {
+    const callback = (data: any) => {
+      console.log(data);
+      dispatch(orderSlice.actions.addOrder(data));
+    };
+    if (socket && isLoggedIn) {
+      socket.emit('acceptOrder', 'hello');
+      socket.on('order', callback);
+    }
+    return () => {
+      if (socket) {
+        socket.off('order', callback);
+      }
+    };
+  }, [isLoggedIn, socket, dispatch]);
+
+  useEffect(() => {
     if (!isLoggedIn) {
       disconnect();
     }
   }, [isLoggedIn, disconnect]);
+
+  // 앱 실행 시 토큰 있으면 로그인하는 코드
+  useEffect(() => {
+    const getTokenAndRefresh = async () => {
+      try {
+        const token = await EncryptedStorage.getItem('refreshToken');
+        if (!token) {
+          return;
+        }
+        const response = await axios.post(
+          `${Config.API_URL}/refreshToken`,
+          {},
+          {
+            headers: {
+              authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        dispatch(
+          userSlice.actions.setUser({
+            name: response.data.data.name,
+            email: response.data.data.email,
+            accessToken: response.data.data.accessToken,
+          }),
+        );
+      } catch (error) {
+        console.error(error);
+        if (
+          ((error as AxiosError).response as AxiosResponse)?.data.code ===
+          'expired'
+        ) {
+          Alert.alert('알림', '다시 로그인 해주세요.');
+        }
+      } finally {
+        // TODO: 스플래시 스크린 없애기
+      }
+    };
+    getTokenAndRefresh();
+  }, [dispatch]);
 
   return (
     <NavigationContainer>
