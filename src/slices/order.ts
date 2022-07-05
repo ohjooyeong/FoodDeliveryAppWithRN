@@ -8,11 +8,11 @@ export interface Order {
   orderId: string;
   start: {
     latitude: number;
-    logitude: number;
+    longitude: number;
   };
   end: {
     latitude: number;
-    logitude: number;
+    longitude: number;
   };
   price: number;
 }
