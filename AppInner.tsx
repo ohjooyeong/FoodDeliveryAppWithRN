@@ -18,6 +18,7 @@ import {Alert} from 'react-native';
 import Config from 'react-native-config';
 import userSlice from './src/slices/user';
 import orderSlice from './src/slices/order';
+import usePermissions from './src/hooks/usePermissions';
 // import orderSlice from './src/slices/order';
 
 export type LoggedInParamList = {
@@ -40,6 +41,7 @@ function AppInner() {
   const dispatch = useAppDispatch();
 
   const [socket, disconnect] = useSocket();
+  const permission = usePermissions();
 
   useEffect(() => {
     axios.interceptors.response.use(
