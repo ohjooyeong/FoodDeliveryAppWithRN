@@ -41,7 +41,8 @@ function AppInner() {
   const dispatch = useAppDispatch();
 
   const [socket, disconnect] = useSocket();
-  const permission = usePermissions();
+
+  usePermissions();
 
   useEffect(() => {
     axios.interceptors.response.use(
