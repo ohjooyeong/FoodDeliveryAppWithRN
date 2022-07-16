@@ -60,7 +60,7 @@ function Complete() {
     return ImagePicker.openCamera({
       includeBase64: true,
       includeExif: true,
-      // saveToPhotos: true,
+      saveToPhotos: true,
     })
       .then(onResponse)
       .catch(console.log);
@@ -92,8 +92,10 @@ function Complete() {
     try {
       await axios.post(`${Config.API_URL}/complete`, formData, {
         headers: {
+          'Content-Type': 'multipart/form-data',
           authorization: `Bearer ${accessToken}`,
         },
+        transformRequest: formData => formData,
       });
       Alert.alert('알림', '완료처리 되었습니다.');
       navigation.goBack();
