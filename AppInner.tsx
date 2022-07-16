@@ -5,6 +5,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {useSelector} from 'react-redux';
 import {RootState} from './src/store/reducer';
+import SplashScreen from 'react-native-splash-screen';
 
 import Settings from './src/pages/Settings';
 import Orders from './src/pages/Orders';
@@ -19,7 +20,6 @@ import Config from 'react-native-config';
 import userSlice from './src/slices/user';
 import orderSlice from './src/slices/order';
 import usePermissions from './src/hooks/usePermissions';
-// import orderSlice from './src/slices/order';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -46,8 +46,8 @@ function AppInner() {
 
   useEffect(() => {
     axios.interceptors.response.use(
-      response => response,
-      async error => {
+      (response: any) => response,
+      async (error: any) => {
         const {
           config,
           response: {status},
@@ -58,6 +58,7 @@ function AppInner() {
             const originalRequest = config;
             const token = await EncryptedStorage.getItem('refreshToken');
             if (!token) {
+              SplashScreen.hide();
               return;
             }
             const {data} = await axios.post(
@@ -153,6 +154,7 @@ function AppInner() {
         }
       } finally {
         // TODO: 스플래시 스크린 없애기
+        SplashScreen.hide();
       }
     };
     getTokenAndRefresh();
